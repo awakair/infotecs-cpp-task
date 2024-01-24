@@ -1,0 +1,1 @@
+add_library(arguments_parser arguments_parser.cc)
