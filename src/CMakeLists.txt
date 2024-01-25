@@ -10,5 +10,6 @@ find_package(PcapPlusPlus REQUIRED)
 add_executable(${PROJECT_NAME}
                 main.cc
                 ArgumentsParser/arguments_parser.cc
-                StreamClassifier/stream_classifier.cc)
+                StreamClassifier/stream_classifier.cc
+                SourceHandler/source_handler.cc)
 target_link_libraries("${PROJECT_NAME}" PUBLIC PcapPlusPlus::Pcap++)
