@@ -1,13 +1,9 @@
 #include <iostream>
-#include "Packet.h"
 #include "PcapFileDevice.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
-#include "ProtocolType.h"
-#include "IPv4Layer.h"
-#include "TcpLayer.h"
-#include "UdpLayer.h"
 #include "ArgumentsParser/arguments_parser.h"
+#include "StreamClassifier/stream_classifier.h"
 
 void PrintUsage() {
   std::cout << "Test task for infotecs. Program № 1" << std::endl;
@@ -22,54 +18,8 @@ void PrintUsage() {
   std::cout << "\tstream-classifier --source-name eth0 --source-type interface --output-file stats.csv --timeout 500" << std::endl;
 }
 
-struct Stream {
-  uint32_t src_ip;
-  uint16_t src_port;
-  uint32_t dst_ip;
-  uint16_t dst_port;
-
-  bool operator==(const Stream& other) const noexcept = default;
-};
-
-template <>
-struct std::hash<Stream> {
-  std::size_t operator()(const Stream& s) const noexcept {
-    // bitshifts to avoid hash to be zero
-    return ((std::hash<uint32_t>{}(s.src_ip) ^ (std::hash<uint16_t>{}(s.src_port) >> 1)) << 1)
-    ^ (std::hash<uint32_t>{}(s.dst_ip) << 1) ^ std::hash<uint16_t>{}(s.dst_port);
-  }
-};
-
-struct Stats {
-  size_t packets_count = 0;
-  size_t bytes_count = 0;
-};
-
-void ClassifyToStream(pcpp::Packet& packet, std::unordered_map<Stream, Stats>& stream_stats) {
-  Stream current_stream;
-
-  auto ip_layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-
-  current_stream.src_ip = ip_layer->getSrcIPAddress().getIPv4().toInt();
-  current_stream.dst_ip = ip_layer->getDstIPAddress().getIPv4().toInt();
-
-
-  if (packet.isPacketOfType(pcpp::UDP)) {
-    auto udp_layer = packet.getLayerOfType<pcpp::UdpLayer>();
-    current_stream.src_port = udp_layer->getSrcPort();
-    current_stream.dst_port = udp_layer->getDstPort();
-  } else {
-    auto tcp_layer = packet.getLayerOfType<pcpp::TcpLayer>();
-    current_stream.src_port = tcp_layer->getSrcPort();
-    current_stream.dst_port = tcp_layer->getDstPort();
-  }
-
-  ++stream_stats[current_stream].packets_count;
-  stream_stats[current_stream].bytes_count += packet.getFirstLayer()->getDataLen();
-}
-
 bool OnPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* _, void* cookie) {
-  auto& streams_stats = *reinterpret_cast<std::unordered_map<Stream, Stats>*>(cookie);
+  auto& streams_stats = *reinterpret_cast<StreamClassifier::StreamStats*>(cookie);
   pcpp::Packet parsed_packet(packet);
   ClassifyToStream(parsed_packet, streams_stats);
 
@@ -106,13 +56,13 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  std::unordered_map<Stream, Stats> stream_stats;
+  StreamClassifier::StreamStats stream_stats;
   pcpp::RawPacket packet;
   switch(arguments->source_type) {
     case ArgumentsParser::SourceType::kPcapFile:
       while (dynamic_cast<pcpp::PcapFileReaderDevice*>(source)->getNextPacket(packet)) {
         pcpp::Packet parsed_packet(&packet);
-        ClassifyToStream(parsed_packet, stream_stats);
+        StreamClassifier::ClassifyToStream(parsed_packet, stream_stats);
       }
       break;
     case ArgumentsParser::SourceType::kInterface:
