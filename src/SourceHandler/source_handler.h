@@ -8,10 +8,15 @@
 #include "../StreamClassifier/stream_classifier.h"
 
 namespace SourceHandler {
+class SourceHandler {
+ public:
+  static constexpr auto kBPF = "ip proto \\tcp || ip proto \\udp";
 
-const char* kBPF = "ip proto \\tcp || ip proto \\udp";
+  static StreamClassifier::StreamStats HandlePcap(const std::string& pcap_name);
+  static StreamClassifier::StreamStats HandleInterface(const std::string& interface_name, int timeout);
 
-StreamClassifier::StreamStats HandlePcap(const std::string& pcap_name);
-StreamClassifier::StreamStats HandleInterface(const std::string& interface_name, int timeout);
+ private:
+  static bool OnPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* _, void* cookie);
+};
 
 }  // namespace SourceHandler

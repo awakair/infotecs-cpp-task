@@ -27,10 +27,10 @@ int main(int argc, char** argv) {
   StreamClassifier::StreamStats stream_stats;
   switch(arguments.source_type) {
     case ArgumentsParser::SourceType::kPcapFile:
-      stream_stats = SourceHandler::HandlePcap(std::string(arguments.source_name));
+      stream_stats = SourceHandler::SourceHandler::HandlePcap(std::string(arguments.source_name));
       break;
     case ArgumentsParser::SourceType::kInterface:
-      stream_stats = SourceHandler::HandleInterface(std::string(arguments.source_name), arguments.timeout);
+      stream_stats = SourceHandler::SourceHandler::HandleInterface(std::string(arguments.source_name), arguments.timeout);
       break;
     case ArgumentsParser::SourceType::kUndefined:
       return EXIT_FAILURE;

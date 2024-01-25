@@ -2,7 +2,7 @@
 
 namespace SourceHandler {
 
-bool OnPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* _, void* cookie) {
+bool SourceHandler::OnPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* _, void* cookie) {
   auto& stream_classifier = *reinterpret_cast<StreamClassifier::StreamClassifier*>(cookie);
   pcpp::Packet parsed_packet(packet);
   stream_classifier.AddToStreamStats(parsed_packet);
@@ -10,7 +10,7 @@ bool OnPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* _, void* coo
   return false;
 }
 
-StreamClassifier::StreamStats HandlePcap(const std::string& pcap_name) {
+StreamClassifier::StreamStats SourceHandler::HandlePcap(const std::string& pcap_name) {
   auto source = new pcpp::PcapFileReaderDevice(pcap_name);
 
   if (!source->open()) {
@@ -33,7 +33,7 @@ StreamClassifier::StreamStats HandlePcap(const std::string& pcap_name) {
   return stream_classifier.GetStreamStats();
 }
 
-StreamClassifier::StreamStats HandleInterface(const std::string& interface_name, int timeout) {
+StreamClassifier::StreamStats SourceHandler::HandleInterface(const std::string& interface_name, int timeout) {
   auto source = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interface_name);
 
   if (source == nullptr || !source->open()) {
