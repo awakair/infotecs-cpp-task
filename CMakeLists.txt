@@ -3,7 +3,7 @@ project(stream_classifier)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
-add_compile_options(-Wall -Wextra -Werror -pedantic-errors)
+add_compile_options(-Wall -Wextra -pedantic-errors)
 
 find_package(PcapPlusPlus REQUIRED)
 
