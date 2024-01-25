@@ -1,0 +1,3 @@
+/Users/awakair/Desktop/Projects/infotecs-cpp-python-test-task/src/build/CMakeFiles/stream_classifier.dir
+/Users/awakair/Desktop/Projects/infotecs-cpp-python-test-task/src/build/CMakeFiles/edit_cache.dir
+/Users/awakair/Desktop/Projects/infotecs-cpp-python-test-task/src/build/CMakeFiles/rebuild_cache.dir

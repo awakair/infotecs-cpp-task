@@ -7,8 +7,7 @@
 #include "IPv4Layer.h"
 #include "TcpLayer.h"
 #include "UdpLayer.h"
-
-#include "libs/ArgumentsParser/arguments_parser.h"
+#include "ArgumentsParser/arguments_parser.h"
 
 void PrintUsage() {
   std::cout << "Test task for infotecs. Program № 1" << std::endl;

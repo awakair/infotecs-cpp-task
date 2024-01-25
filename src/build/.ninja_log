@@ -1,0 +1,6 @@
+# ninja log v5
+0	542	1706215076482548844	CMakeFiles/stream_classifier.dir/ArgumentsParser/arguments_parser.cc.o	c0350455e2fa0775
+0	63	1706215144047755060	build.ninja	52560b25451cc76f
+7	564	1706215144615080564	CMakeFiles/stream_classifier.dir/ArgumentsParser/arguments_parser.cc.o	5d35307c5641320b
+6	773	1706215144824806578	CMakeFiles/stream_classifier.dir/main.cc.o	10b42801c6347fdd
+774	902	1706215144954861013	stream_classifier	79b4c06e33f7b427

@@ -7,5 +7,7 @@ add_compile_options(-Wall -Wextra -pedantic-errors)
 
 find_package(PcapPlusPlus REQUIRED)
 
-add_subdirectory(libs/ArgumentsParser)
-add_subdirectory(bin)
+add_executable(${PROJECT_NAME}
+                main.cc
+                ArgumentsParser/arguments_parser.cc)
+target_link_libraries("${PROJECT_NAME}" PUBLIC PcapPlusPlus::Pcap++)
