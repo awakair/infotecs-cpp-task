@@ -16,7 +16,6 @@ void ClassifyToStream(pcpp::Packet& packet, StreamStats& stream_stats) {
   current_stream.src_ip = ip_layer->getSrcIPAddress().getIPv4().toInt();
   current_stream.dst_ip = ip_layer->getDstIPAddress().getIPv4().toInt();
 
-
   if (packet.isPacketOfType(pcpp::UDP)) {
     auto udp_layer = packet.getLayerOfType<pcpp::UdpLayer>();
     current_stream.src_port = udp_layer->getSrcPort();
