@@ -17,7 +17,7 @@ StreamClassifier::StreamStats HandlePcap(const std::string& pcap_name) {
     throw std::runtime_error("Cannot open file");
   }
 
-  if (!source->setFilter(BPF)) {
+  if (!source->setFilter(kBPF)) {
     throw std::runtime_error("Cannot set filter for pcap file");
   }
 
@@ -40,7 +40,7 @@ StreamClassifier::StreamStats HandleInterface(const std::string& interface_name,
     throw std::runtime_error("Cannot find or open device");
   }
 
-  if (!source->setFilter(BPF)) {
+  if (!source->setFilter(kBPF)) {
     throw std::runtime_error("Cannot set filter for interface");
   }
 

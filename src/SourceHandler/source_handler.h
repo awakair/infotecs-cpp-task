@@ -9,7 +9,7 @@
 
 namespace SourceHandler {
 
-const char* BPF = "ip proto \\tcp || ip proto \\udp";
+const char* kBPF = "ip proto \\tcp || ip proto \\udp";
 
 StreamClassifier::StreamStats HandlePcap(const std::string& pcap_name);
 StreamClassifier::StreamStats HandleInterface(const std::string& interface_name, int timeout);
