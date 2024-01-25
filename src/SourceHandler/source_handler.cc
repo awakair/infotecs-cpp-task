@@ -14,10 +14,12 @@ StreamClassifier::StreamStats HandlePcap(const std::string& pcap_name) {
   auto source = new pcpp::PcapFileReaderDevice(pcap_name);
 
   if (!source->open()) {
-    throw "Cannot open file";
+    throw std::runtime_error("Cannot open file");
   }
 
-  source->setFilter("ip proto \\tcp || ip proto \\udp");
+  if (!source->setFilter(BPF)) {
+    throw std::runtime_error("Cannot set filter for pcap file");
+  }
 
   StreamClassifier::StreamStats stream_stats;
   pcpp::RawPacket packet;
@@ -35,10 +37,12 @@ StreamClassifier::StreamStats HandleInterface(const std::string& interface_name,
   auto source = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interface_name);
 
   if (source == nullptr || !source->open()) {
-    throw "Cannot find or open device";
+    throw std::runtime_error("Cannot find or open device");
   }
 
-  source->setFilter("ip proto \\tcp || ip proto \\udp");
+  if (!source->setFilter(BPF)) {
+    throw std::runtime_error("Cannot set filter for interface");
+  }
 
   StreamClassifier::StreamStats stream_stats;
   pcpp::RawPacket packet;
