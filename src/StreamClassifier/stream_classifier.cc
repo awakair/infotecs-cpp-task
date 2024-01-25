@@ -8,7 +8,7 @@ std::size_t StreamHash::operator()(const Stream& s) const noexcept {
     ^ (std::hash<uint32_t>{}(s.dst_ip) << 1) ^ std::hash<uint16_t>{}(s.dst_port);
 }
 
-void ClassifyToStream(pcpp::Packet& packet, StreamStats& stream_stats) {
+void StreamClassifier::AddToStreamStats(pcpp::Packet& packet) {
   Stream current_stream;
 
   auto ip_layer = packet.getLayerOfType<pcpp::IPv4Layer>();
@@ -26,8 +26,12 @@ void ClassifyToStream(pcpp::Packet& packet, StreamStats& stream_stats) {
     current_stream.dst_port = tcp_layer->getDstPort();
   }
 
-  ++stream_stats[current_stream].packets_count;
-  stream_stats[current_stream].bytes_count += packet.getFirstLayer()->getDataLen();
+  ++stream_stats_[current_stream].packets_count;
+  stream_stats_[current_stream].bytes_count += packet.getFirstLayer()->getDataLen();
+}
+
+StreamStats& StreamClassifier::GetStreamStats() {
+  return stream_stats_;
 }
 
 }  // namespace StreamClassifier

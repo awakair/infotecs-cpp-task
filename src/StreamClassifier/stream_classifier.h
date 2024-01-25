@@ -31,6 +31,12 @@ struct Stats {
 
 using StreamStats = std::unordered_map<Stream, Stats, StreamHash>;
 
-void ClassifyToStream(pcpp::Packet& packet, StreamStats& stream_stats);
+class StreamClassifier {
+ public:
+  void AddToStreamStats(pcpp::Packet& packet);
+  StreamStats& GetStreamStats();
+ private:
+  StreamStats stream_stats_;
+};
 
 }  // namespace StreamClassifier

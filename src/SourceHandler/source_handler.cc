@@ -3,9 +3,9 @@
 namespace SourceHandler {
 
 bool OnPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* _, void* cookie) {
-  auto& streams_stats = *reinterpret_cast<StreamClassifier::StreamStats*>(cookie);
+  auto& stream_classifier = *reinterpret_cast<StreamClassifier::StreamClassifier*>(cookie);
   pcpp::Packet parsed_packet(packet);
-  StreamClassifier::ClassifyToStream(parsed_packet, streams_stats);
+  stream_classifier.AddToStreamStats(parsed_packet);
 
   return false;
 }
@@ -21,16 +21,16 @@ StreamClassifier::StreamStats HandlePcap(const std::string& pcap_name) {
     throw std::runtime_error("Cannot set filter for pcap file");
   }
 
-  StreamClassifier::StreamStats stream_stats;
+  StreamClassifier::StreamClassifier stream_classifier;
   pcpp::RawPacket packet;
   while (source->getNextPacket(packet)) {
     pcpp::Packet parsed_packet(&packet);
-    StreamClassifier::ClassifyToStream(parsed_packet, stream_stats);
+    stream_classifier.AddToStreamStats(parsed_packet);
   }
 
   source->close();
 
-  return stream_stats;
+  return stream_classifier.GetStreamStats();
 }
 
 StreamClassifier::StreamStats HandleInterface(const std::string& interface_name, int timeout) {
@@ -44,13 +44,13 @@ StreamClassifier::StreamStats HandleInterface(const std::string& interface_name,
     throw std::runtime_error("Cannot set filter for interface");
   }
 
-  StreamClassifier::StreamStats stream_stats;
+  StreamClassifier::StreamClassifier stream_classifier;
   pcpp::RawPacket packet;
-  source->startCaptureBlockingMode(OnPacketArrives, &stream_stats, timeout);
+  source->startCaptureBlockingMode(OnPacketArrives, &stream_classifier, timeout);
 
   source->close();
 
-  return stream_stats;
+  return stream_classifier.GetStreamStats();
 }
 
 }  // namespace SourceHandler
