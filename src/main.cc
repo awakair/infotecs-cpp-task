@@ -17,21 +17,20 @@ void PrintUsage() {
 }
 
 int main(int argc, char** argv) {
-  auto arguments = ArgumentsParser::Parse(argc, argv);
-
-  if (!arguments.has_value()) {
+  ArgumentsParser::Parser parser(argc, argv);
+  if (!parser.Parse()) {
     PrintUsage();
     return EXIT_FAILURE;
   }
-
+  auto arguments = parser.GetParsedArguments();
 
   StreamClassifier::StreamStats stream_stats;
-  switch(arguments->source_type) {
+  switch(arguments.source_type) {
     case ArgumentsParser::SourceType::kPcapFile:
-      stream_stats = SourceHandler::HandlePcap(std::string(arguments->source_name));
+      stream_stats = SourceHandler::HandlePcap(std::string(arguments.source_name));
       break;
     case ArgumentsParser::SourceType::kInterface:
-      stream_stats = SourceHandler::HandleInterface(std::string(arguments->source_name), arguments->timeout);
+      stream_stats = SourceHandler::HandleInterface(std::string(arguments.source_name), arguments.timeout);
       break;
     case ArgumentsParser::SourceType::kUndefined:
       return EXIT_FAILURE;

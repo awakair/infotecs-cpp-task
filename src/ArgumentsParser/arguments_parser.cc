@@ -2,62 +2,68 @@
 
 namespace ArgumentsParser {
 
-constexpr std::string_view argument_prefix = "--";
-constexpr std::string_view source_type_argument = "source-type";
-constexpr std::string_view pcap_file_type = "pcap-file";
-constexpr std::string_view interface_type = "interface";
-constexpr std::string_view source_name_argument = "source-name";
-constexpr std::string_view output_file_argument = "output-file";
-constexpr std::string_view timeout_argument = "timeout";
+Parser::Parser(int argc, char** argv) noexcept: argc_(argc), argv_(argv) {}
 
-std::optional<Arguments> Parse(int argc, char** argv) noexcept {
-  Arguments arguments;
-  if (argc == 1) {
-    return std::nullopt;
+bool Parser::Parse() noexcept {
+  if (is_correctly_parsed_) {
+    return true;
   }
 
-  for (int i = 1; i + 1 < argc; i += 2) {
-    std::string_view current_argument = argv[i];
+  if (argc_ == 1) {
+    return is_correctly_parsed_ = false;
+  }
 
-    if (!current_argument.starts_with(argument_prefix)) {
-      return std::nullopt;
+  for (int i = 1; i + 1 < argc_; i += 2) {
+    std::string_view current_argument = argv_[i];
+
+    if (!current_argument.starts_with(kArgumentPrefix)) {
+      return is_correctly_parsed_ = false;
     }
-    current_argument.remove_prefix(argument_prefix.length());
+    current_argument.remove_prefix(kArgumentPrefix.length());
 
-    if (current_argument == source_name_argument) {
-      arguments.source_name = argv[i + 1];
+    if (current_argument == kSourceNameArgument) {
+      parsed_arguments_.source_name = argv_[i + 1];
       continue;
     }
 
-    if (current_argument == source_type_argument) {
-      std::string_view type = argv[i + 1];
-      if (type == pcap_file_type) {
-        arguments.source_type = SourceType::kPcapFile;
+    if (current_argument == kSourceTypeArgument) {
+      std::string_view type = argv_[i + 1];
+      if (type == kPcapFileType) {
+        parsed_arguments_.source_type = SourceType::kPcapFile;
       }
-      if (type == interface_type) {
-        arguments.source_type = SourceType::kInterface;
+      if (type == kInterfaceType) {
+        parsed_arguments_.source_type = SourceType::kInterface;
       }
       continue;
     }
 
-    if (current_argument == output_file_argument) {
-      arguments.output_file_name = argv[i + 1];
+    if (current_argument == kOutputFileArgument) {
+      parsed_arguments_.output_file_name = argv_[i + 1];
       continue;
     }
 
-    if (current_argument == timeout_argument) {
-      arguments.timeout = static_cast<int>(std::strtol(argv[i + 1], nullptr, 10));
+    if (current_argument == kTimeoutArgument) {
+      parsed_arguments_.timeout = static_cast<int>(std::strtol(argv_[i + 1], nullptr, 10));
       continue;
     }
   }
 
-  bool arguments_are_unfilled = (arguments.source_type == SourceType::kUndefined) || (arguments.output_file_name.empty()) ||
-    (arguments.source_name.empty()) || (arguments.source_type == SourceType::kInterface && arguments.timeout == 0);
-  if (arguments_are_unfilled) {
-    return std::nullopt;
+  bool arguments_are_unfilled = (parsed_arguments_.source_type == SourceType::kUndefined) || (parsed_arguments_.output_file_name.empty()) ||
+    (parsed_arguments_.source_name.empty()) || (parsed_arguments_.source_type == SourceType::kInterface && parsed_arguments_.timeout == 0);
+
+  return is_correctly_parsed_ = !arguments_are_unfilled;
+}
+
+bool Parser::IsCorrectlyParsed() noexcept {
+  return is_correctly_parsed_;
+}
+
+const Arguments& Parser::GetParsedArguments() {
+  if (!is_correctly_parsed_) {
+    throw std::logic_error("Expression is not parsed");
   }
 
-  return arguments;
+  return parsed_arguments_;
 }
 
 }  // namespace ArgumentsParser
