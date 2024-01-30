@@ -8,6 +8,11 @@
 #include "../StreamClassifier/stream_classifier.h"
 
 namespace SourceHandler {
+class BadSourceError: public std::runtime_error {
+ public:
+  using std::runtime_error::runtime_error;
+};
+
 class SourceHandler {
  public:
   static constexpr auto kBPF = "ip proto \\tcp || ip proto \\udp";
@@ -16,7 +21,7 @@ class SourceHandler {
   static StreamClassifier::StreamStats HandleInterface(const std::string& interface_name, int timeout);
 
  private:
-  static bool OnPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* _, void* cookie);
+  static bool OnPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* _, void* cookie) noexcept;
 };
 
 }  // namespace SourceHandler

@@ -48,8 +48,10 @@ bool Parser::Parse() noexcept {
     }
   }
 
-  bool arguments_are_unfilled = (parsed_arguments_.source_type == SourceType::kUndefined) || (parsed_arguments_.output_file_name.empty()) ||
-    (parsed_arguments_.source_name.empty()) || (parsed_arguments_.source_type == SourceType::kInterface && parsed_arguments_.timeout == 0);
+  bool arguments_are_unfilled = (parsed_arguments_.source_type == SourceType::kUndefined) ||
+    (parsed_arguments_.output_file_name.empty()) ||
+    (parsed_arguments_.source_name.empty()) ||
+    (parsed_arguments_.source_type == SourceType::kInterface && parsed_arguments_.timeout == 0);
 
   return is_correctly_parsed_ = !arguments_are_unfilled;
 }

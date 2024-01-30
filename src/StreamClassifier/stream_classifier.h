@@ -33,8 +33,8 @@ using StreamStats = std::unordered_map<Stream, Stats, StreamHash>;
 
 class StreamClassifier {
  public:
-  void AddToStreamStats(pcpp::Packet& packet);
-  StreamStats& GetStreamStats();
+  void AddToStreamStats(const pcpp::Packet& packet);
+  StreamStats& GetStreamStats() noexcept;
  private:
   StreamStats stream_stats_;
 };

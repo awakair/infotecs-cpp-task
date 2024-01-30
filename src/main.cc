@@ -1,7 +1,10 @@
 #include <iostream>
+#include <cstddef>
 #include "ArgumentsParser/arguments_parser.h"
 #include "StreamClassifier/stream_classifier.h"
 #include "SourceHandler/source_handler.h"
+#include "TableFileWriter/table_file_writer.h"
+#include "TableFileWriter/dsv_writer.h"
 
 void PrintUsage() {
   std::cout << "Test task for infotecs. Program № 1" << std::endl;
@@ -25,19 +28,30 @@ int main(int argc, char** argv) {
   auto arguments = parser.GetParsedArguments();
 
   StreamClassifier::StreamStats stream_stats;
-  switch(arguments.source_type) {
-    case ArgumentsParser::SourceType::kPcapFile:
-      stream_stats = SourceHandler::SourceHandler::HandlePcap(std::string(arguments.source_name));
-      break;
-    case ArgumentsParser::SourceType::kInterface:
-      stream_stats = SourceHandler::SourceHandler::HandleInterface(std::string(arguments.source_name), arguments.timeout);
-      break;
-    case ArgumentsParser::SourceType::kUndefined:
-      return EXIT_FAILURE;
+  try {
+    switch (arguments.source_type) {
+      case ArgumentsParser::SourceType::kPcapFile:
+        stream_stats = SourceHandler::SourceHandler::HandlePcap(std::string(arguments.source_name));
+        break;
+      case ArgumentsParser::SourceType::kInterface:
+        stream_stats = SourceHandler::SourceHandler::HandleInterface(std::string(arguments.source_name), arguments.timeout);
+        break;
+      case ArgumentsParser::SourceType::kUndefined:
+        return EXIT_FAILURE;
+    }
+  } catch (SourceHandler::BadSourceError const& e) {
+    std::cout << "Bad source: " << e.what() << std::endl;
+    return EXIT_FAILURE;
   }
 
-  for (auto& [stream, stats]: stream_stats) {
-    std::cout << pcpp::IPv4Address(stream.src_ip).toString() << ":" << stream.src_port << " -> " << pcpp::IPv4Address(stream.dst_ip).toString() << ":" << stream.dst_port << "\t" << stats.packets_count << " " << stats.bytes_count << std::endl;
+
+  const std::size_t kFieldsInStreamStats = 6;
+  const char kDelimiter = ',';
+  TableFileWriter::TableFileWriter&& table = TableFileWriter::DSVWriter(kDelimiter, kFieldsInStreamStats, std::string(arguments.output_file_name));
+  for (auto& [stream, stats] : stream_stats) {
+    table.WriteRow({pcpp::IPv4Address(stream.src_ip).toString(), std::to_string(stream.src_port),
+                     pcpp::IPv4Address(stream.dst_ip).toString(), std::to_string(stream.dst_port),
+                     std::to_string(stats.packets_count), std::to_string(stats.bytes_count)});
   }
 
   return EXIT_SUCCESS;

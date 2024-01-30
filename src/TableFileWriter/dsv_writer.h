@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cassert>
+#include <string>
+#include <vector>
 #include "table_file_writer.h"
 
 namespace TableFileWriter {
